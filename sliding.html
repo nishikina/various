@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>スライディングパズル</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+    position: relative;
+  }
+
+  .character-image {
+    width: 100px; /* 画像の幅を調整 */
+    height: auto;
+    position: absolute;
+    top: 50px;
+    left: 580px;
+  }
+
+  .speech-bubble {
+    position: absolute;
+    top: 50px;
+    left: 680px; /* 画像の幅 + マージンを調整 */
+    background-color: #fff;
+    padding: 10px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  }
+
+  .puzzle {
+    display: grid;
+    grid-template-columns: repeat(4, 75px); /* タイルの幅を調整 */
+    grid-template-rows: repeat(4, 75px); /* タイルの高さを調整 */
+    gap: 5px;
+    background-color: rgba(255, 255, 255, 0.8);
+    border: 5px solid #555;
+    border-radius: 10px;
+    padding: 10px;
+  }
+
+  .tile {
+    background-color: #666;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 24px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  .tile:hover {
+    background-color: #888;
+  }
+</style>
+</head>
+<body>
+
+<img src="image/tutibuta.png" alt="tutibuta" class="character-image">
+
+<div class="speech-bubble">
+  <p>左上から順に1から並べて下さい</p>
+</div>
+
+<div class="puzzle" id="puzzle"></div>
+
+<script>
+  // ゲームのサイズ
+  const size = 4;
+  const totalTiles = size * size;
+  const emptyTile = totalTiles;
+
+  // パズルの初期配置
+  let tiles = [...Array(totalTiles).keys()].map(i => i + 1);
+
+  // シャッフル関数
+  function shuffle(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+  }
+
+  // ゲームの初期化
+  function initializeGame() {
+    tiles = shuffle(tiles);
+    render();
+  }
+
+  // ゲームのレンダリング
+  function render() {
+    const puzzleElement = document.getElementById('puzzle');
+    puzzleElement.innerHTML = '';
+    tiles.forEach((number, index) => {
+      const tile = document.createElement('div');
+      tile.classList.add('tile');
+      tile.textContent = number === emptyTile ? '' : number;
+      tile.addEventListener('click', () => moveTile(index));
+      puzzleElement.appendChild(tile);
+    });
+  }
+
+  // タイルの移動
+  function moveTile(index) {
+    const row = Math.floor(index / size);
+    const col = index % size;
+
+    const emptyIndex = tiles.indexOf(emptyTile);
+    const emptyRow = Math.floor(emptyIndex / size);
+    const emptyCol = emptyIndex % size;
+
+    if ((Math.abs(row - emptyRow) === 1 && col === emptyCol) ||
+        (Math.abs(col - emptyCol) === 1 && row === emptyRow)) {
+      // タイルの入れ替え
+      [tiles[index], tiles[emptyIndex]] = [tiles[emptyIndex], tiles[index]];
+      render();
+      if (checkWin()) {
+        alert('おめでとうございます！パズルを解きました！');
+      }
+    }
+  }
+
+  // ゲームの勝利チェック
+  function checkWin() {
+    for (let i = 0; i < totalTiles - 1; i++) {
+      if (tiles[i] !== i + 1) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  // ゲームの初期化
+  initializeGame();
+</script>
+
+</body>
+</html>
