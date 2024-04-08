@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>かわいい15パズルゲーム</title>
+<style>
+  body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f8f8f8;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(4, 100px);
+    grid-template-rows: repeat(4, 100px);
+    gap: 5px;
+    border: 5px solid #ff6f61;
+    border-radius: 10px;
+    background-color: #fff;
+    padding: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  .cell {
+    border: 1px solid #ff6f61;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 24px;
+    cursor: pointer;
+    background-color: #ffe4e1;
+    border-radius: 5px;
+  }
+  .cell:hover {
+    background-color: #ffb6c1;
+  }
+</style>
+</head>
+<body>
+
+<div class="grid" id="grid"></div>
+
+<script>
+  // ゲームの初期状態を生成する関数
+  function initializeGame() {
+    let numbers = [...Array(15).keys()].map(x => x + 1); // 1から15までの数字を生成
+    numbers.push(""); // 空のマスを追加
+
+    // ランダムな順番で配列をシャッフル
+    for (let i = numbers.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [numbers[i], numbers[j]] = [numbers[j], numbers[i]];
+    }
+
+    // マス目に数字を配置
+    const grid = document.getElementById("grid");
+    grid.innerHTML = "";
+    numbers.forEach(number => {
+      const cell = document.createElement("div");
+      cell.className = "cell";
+      cell.textContent = number;
+      cell.addEventListener("click", () => moveNumber(number));
+      grid.appendChild(cell);
+    });
+  }
+
+  // 数字を移動させる関数
+  function moveNumber(number) {
+    const cells = Array.from(document.getElementsByClassName("cell"));
+    const emptyCellIndex = cells.findIndex(cell => cell.textContent === "");
+    const numberCellIndex = cells.findIndex(cell => cell.textContent === number.toString());
+    const adjacentIndices = getAdjacentIndices(emptyCellIndex);
+    if (adjacentIndices.includes(numberCellIndex)) {
+      [cells[emptyCellIndex].textContent, cells[numberCellIndex].textContent] = [cells[numberCellIndex].textContent, cells[emptyCellIndex].textContent];
+    }
+    checkWin();
+  }
+
+  // 空きマスの周囲のマス目のインデックスを取得する関数
+  function getAdjacentIndices(index) {
+    const row = Math.floor(index / 4);
+    const col = index % 4;
+    const adjacentIndices = [];
+    if (row > 0) adjacentIndices.push(index - 4);
+    if (row < 3) adjacentIndices.push(index + 4);
+    if (col > 0) adjacentIndices.push(index - 1);
+    if (col < 3) adjacentIndices.push(index + 1);
+    return adjacentIndices;
+  }
+
+  // 勝利条件を確認する関数
+  function checkWin() {
+    const cells = Array.from(document.getElementsByClassName("cell")).map(cell => parseInt(cell.textContent));
+    if (cells.every((number, index) => (index === 15 || number === index + 1))) {
+      alert("おめでとうございます！ゲームクリアです！");
+      initializeGame();
+    }
+  }
+
+  // ゲームを初期化して開始
+  window.onload = initializeGame;
+</script>
+
+</body>
+</html>
